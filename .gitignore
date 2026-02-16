@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+
+# Planning and temporary files
+.planning/
+query-*.ts
+analysis/
+
+# Local development scripts
+*.local.*
+
+# Test and debug scripts
+test-*.ts
+debug-*.ts
+
+# Claude Code configuration
+.claude.json
+.claude/
