@@ -8,6 +8,7 @@
  */
 
 import 'dotenv/config';
+import http from 'http';
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
@@ -220,43 +221,31 @@ async function main() {
   // Auth routes
   app.use('/auth', authRoutes);
 
-  // MCP transport
-  const transport = new StreamableHTTPServerTransport();
+  // MCP transport (stateless mode for compatibility)
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+  });
   await server.connect(transport);
 
-  // MCP endpoints
-  app.get('/mcp', requireAuthForToolCall, async (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-
-    try {
-      await transport.handleRequest(req, res);
-    } catch (error) {
-      console.error('[MCP] GET /mcp error:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    }
-  });
-
-  const mcpBodyParser = express.text({ type: '*/*' });
-  app.post('/mcp', mcpBodyParser, requireAuthForToolCall, async (req, res) => {
-    try {
-      await transport.handleRequest(req, res, req.body);
-    } catch (error) {
-      console.error('[MCP] POST /mcp error:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    }
-  });
-
-  // Start HTTP server
+  // Start HTTP server - route /mcp directly to transport, everything else to Express
   const PORT = env.PORT;
   const HOST = env.HOST;
 
-  app.listen(PORT, HOST, () => {
+  const httpServer = http.createServer((req, res) => {
+    if (req.url === '/mcp' || req.url?.startsWith('/mcp?')) {
+      transport.handleRequest(req, res).catch((error) => {
+        console.error('[MCP] error:', error);
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Internal server error' }));
+        }
+      });
+    } else {
+      app(req, res);
+    }
+  });
+
+  httpServer.listen(Number(PORT), HOST, () => {
     console.error(`Google Ads MCP server running on http://${HOST}:${PORT}`);
     console.error(`Health check: http://${HOST}:${PORT}/health`);
     console.error(`Environment: ${env.NODE_ENV}`);

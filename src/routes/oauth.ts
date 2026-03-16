@@ -9,7 +9,7 @@ import crypto from 'crypto';
 import { env } from '../config/index.js';
 import { generateAccessToken } from '../auth/device-code.js';
 
-const router = Router();
+const router: Router = Router();
 
 function getBaseUrl(req: Request): string {
   if (env.NODE_ENV === 'production') {

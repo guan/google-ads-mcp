@@ -2,14 +2,24 @@
 """OAuth flow to get refresh token for Google Ads API (no external deps)."""
 
 import json
+import os
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlencode, parse_qs, urlparse
 from urllib.request import urlopen, Request
+from pathlib import Path
 
-# Replace with your OAuth credentials from Google Cloud Console
-CLIENT_ID = "YOUR_OAUTH_CLIENT_ID_HERE"
-CLIENT_SECRET = "YOUR_OAUTH_CLIENT_SECRET_HERE"
+# Load .env file manually (no external deps)
+_env_file = Path(__file__).resolve().parent.parent / ".env"
+if _env_file.exists():
+    for line in _env_file.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip())
+
+CLIENT_ID = os.environ["GOOGLE_ADS_CLIENT_ID"]
+CLIENT_SECRET = os.environ["GOOGLE_ADS_CLIENT_SECRET"]
 REDIRECT_URI = "http://localhost:8080"
 SCOPES = "https://www.googleapis.com/auth/adwords"
 

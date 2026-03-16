@@ -5,8 +5,10 @@
  * GAQL query execution, and result formatting.
  */
 
-import { GoogleAdsApi, CustomerInstance } from 'google-ads-api';
+import { GoogleAdsApi } from 'google-ads-api';
 import { env } from '../config/index.js';
+
+type CustomerInstance = ReturnType<GoogleAdsApi['Customer']>;
 
 let clientInstance: GoogleAdsApi | null = null;
 let customerInstance: CustomerInstance | null = null;

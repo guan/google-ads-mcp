@@ -31,6 +31,9 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - SESSION_TTL=${SESSION_TTL:-86400000}
 
+      # Auth
+      - REQUIRE_AUTH=${REQUIRE_AUTH:-true}
+
     restart: unless-stopped
 
     # Health check

@@ -14,7 +14,7 @@ import { isGoogleOAuthConfigured, getAuthorizationUrl, handleOAuthCallback } fro
 import { requireAuth } from '../middleware/auth.js';
 import { authorizationCodes } from './oauth.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /auth/google
